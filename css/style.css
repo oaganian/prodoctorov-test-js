@@ -1,0 +1,117 @@
+/*reset*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  scroll-behavior: smooth;
+  text-rendering: optimizeSpeed;
+  line-height: 1.5;
+  font-family: "Cuprum", sans-serif;
+  background: url("../img/snow-micro-circles.png") no-repeat center top/cover;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+/*visually-hidden*/
+.visually-hidden {
+  visibility: hidden;
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px 1px 1px 1px);
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+}
+.container {
+  margin: 0 auto;
+  max-width: 960px;
+}
+.content {
+  margin-top: 20px;
+  min-height: calc(100vh - 80px);
+  padding: 0 25px;
+}
+
+.header-content,
+.footer-content {
+  min-height: 60px;
+}
+.header {
+  padding-top: 80px;
+}
+/*font cuprum*/
+.header-content {
+  -webkit-box-shadow: -2px 4px 11px -6px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: -2px 4px 11px -6px rgba(0, 0, 0, 0.75);
+  box-shadow: -2px 4px 11px -6px rgba(0, 0, 0, 0.75);
+  background-color: #fafafa;
+  border-bottom: 1px solid #00000026;
+  border-radius: 5px;
+}
+
+.menu {
+  padding: 25px 40px;
+}
+.menu__list {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.menu__item:first-child {
+  margin-right: 40px;
+}
+
+.menu__link {
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1.8px;
+  color: #000000a8;
+}
+
+.menu__link_active {
+  color: #481616;
+  font-weight: 600;
+}
+
+/*main*/
+
+.album-list,
+.photo-list {
+  margin-left: 40px;
+  color: "#325c6a";
+}
+.open-albums,
+.open-photos {
+  cursor: pointer;
+  font-size: 20px;
+  color: grey;
+  font-weight: bold;
+  border: 0;
+  background: transparent;
+  margin-left: 10px;
+}
+.opened,
+.photos-opened {
+  transform: rotate(90deg);
+}

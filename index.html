@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medrating</title>
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Cuprum&display=swap" rel="stylesheet"> -->
+    <link rel="stylesheet" href="./css/normalize.css" />
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="container">
+        <div class="header-content">
+          <nav class="menu">
+            <ul class="menu__list">
+              <li class="menu__item">
+                <a class="menu__link menu__link_active" href="#catalog"
+                  >Каталог</a
+                >
+              </li>
+              <li class="menu__item">
+                <a class="menu__link" href="#favorite">Избранное</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+    <div class="wrapper">
+      <main class="container content">
+        <ul class="user-list"></ul>
+        <!-- <h1 class="visually-hidden">Каталог сайта "Медрейтинг"</h1> -->
+
+        <!-- <section class="catalog">
+        <h2 class="visually-hidden">Каталог</h2>
+
+        <ul id="users" class="users-list">
+          <li><a href="">People</a></li>
+
+        </ul>
+
+      </section> -->
+      </main>
+
+      <footer class="footer">
+        <div class="container">
+          <div class="footer-content"></div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="https://unpkg.com/regenerator-runtime@0.13.1/runtime.js"></script>
+    <script src="./handlebars.min-v4.7.6.js"></script>
+    <script src="dist/main.js"></script>
+
+    <script id="peopleTemplate" type="text/template">
+      <ul class="people">
+        <li>{{name}}</li>
+      </ul>
+    </script>
+  </body>
+</html>
