@@ -111,7 +111,7 @@ img {
   background: transparent;
   margin-left: 10px;
 }
-.opened,
-.photos-opened {
+.albums--open,
+.photos--open {
   transform: rotate(90deg);
 }

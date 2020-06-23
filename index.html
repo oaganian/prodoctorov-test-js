@@ -29,20 +29,8 @@
       </div>
     </header>
     <div class="wrapper">
-      <main class="container content">
-        <ul class="user-list"></ul>
-        <!-- <h1 class="visually-hidden">Каталог сайта "Медрейтинг"</h1> -->
-
-        <!-- <section class="catalog">
-        <h2 class="visually-hidden">Каталог</h2>
-
-        <ul id="users" class="users-list">
-          <li><a href="">People</a></li>
-
-        </ul>
-
-      </section> -->
-      </main>
+      <!-- root element -->
+      <main class="container content"></main>
 
       <footer class="footer">
         <div class="container">
@@ -50,15 +38,13 @@
         </div>
       </footer>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
     <script src="https://unpkg.com/regenerator-runtime@0.13.1/runtime.js"></script>
-    <script src="./handlebars.min-v4.7.6.js"></script>
     <script src="dist/main.js"></script>
-
-    <script id="peopleTemplate" type="text/template">
-      <ul class="people">
-        <li>{{name}}</li>
-      </ul>
-    </script>
   </body>
 </html>

@@ -178,108 +178,224 @@ var View = function () {
   }
 
   _createClass(View, [{
-    key: "_getListContainer",
-
+    key: "clearMain",
+    value: function clearMain() {
+      var main = document.querySelector("main");
+      main.innerHTML = "";
+    }
     //HELPER FUNCTIONS
 
+    /**
+     *get list container for each entity
+     * @param {string} containerSelector
+     * @returns {object} ul
+     */
+
+  }, {
+    key: "_getListContainer",
     value: function _getListContainer(containerSelector) {
       var container = document.querySelector(containerSelector);
       return container;
     }
+
+    /**
+     *Creates dom item
+     * @param {string} className
+     * @param {string} id
+     * @param {string} innerHTML
+     * @returns {object} domItem
+     */
+
   }, {
-    key: "_createElements",
-    value: function _createElements() {}
+    key: "_createDomItem",
+    value: function _createDomItem(name, className) {
+      var id = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "";
+      var innerHTML = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : "";
 
-    //RENDER FUNCTIONS
+      var domItem = document.createElement(name);
+      domItem.className = className;
+      domItem.id = id;
+      domItem.innerHTML = innerHTML;
+
+      return domItem;
+    }
+
+    /*------------------Вместо одной "универсальной" функции TRANSFORM_DATA, с большим количеством параметров, 
+    функции было принято решение сделать 3, которые легко использовать ------------- */
+
+    /**
+     *Creates dom items li for every object
+     * @param {array} users
+     * @returns {array}
+     */
 
   }, {
-    key: "renderUsers",
-    value: function renderUsers(users) {
-      var userList = document.querySelector(".user-list");
-      /**create li for all users */
-      users.forEach(function (user) {
-        var li = document.createElement("li");
-        /**button open albums */
-        var button = document.createElement("button");
-        button.className = "open-albums";
-        button.id = user.id;
-        button.innerHTML = ">";
+    key: "_transformUsersApiToDom",
+    value: function _transformUsersApiToDom(users) {
+      var _this2 = this;
 
-        /**ul for albums */
-        var ul = document.createElement("ul");
-        ul.className = "user-" + user.id + "__albums album-list";
+      return users.map(function (user) {
+        // create li element for each item
+        var elem = _this2._createDomItem("li", "user-list__item user-" + user.id, "", user.name);
 
-        li.innerHTML = user.name;
+        // create ul inner container for each item
+        var innerContainer = _this2._createDomItem("ul", "user-" + user.id + "__albums album-list");
 
-        li.className = "user-list__item user-" + user.id;
-        li.appendChild(button);
-        li.appendChild(ul);
-        userList.appendChild(li);
+        //create button open/close for each item
+        var OCButton = _this2._createDomItem("button", "open-albums open-albums--" + user.id, user.id, ">");
+
+        // add created stuff to li element
+        elem.appendChild(OCButton);
+        elem.appendChild(innerContainer);
+
+        return elem;
       });
     }
+
+    /**
+     *Creates dom items li for every object
+     * @param {array} albums
+     * @returns {array}
+     */
+
   }, {
-    key: "renderUserAlbums",
-    value: function renderUserAlbums(albums) {
-      var openBtn = document.getElementById("" + albums[0].userId);
+    key: "_transformAlbumsApiToDom",
+    value: function _transformAlbumsApiToDom(albums) {
+      var _this3 = this;
 
-      openBtn.classList.add("opened");
+      return albums.map(function (album) {
+        // create li element for each item
+        var elem = _this3._createDomItem("li", "album-list__item album-" + album.id, "", album.title);
 
-      var albumList = document.querySelector(".user-" + albums[0].userId + "__albums");
+        // create ul inner container for each item
+        var innerContainer = _this3._createDomItem("ul", "album-" + album.id + "__photos photo-list");
 
-      //
-      albums.forEach(function (album) {
-        var li = document.createElement("li");
+        //create button open/close for each item
+        var OCButton = _this3._createDomItem("button", "open-photos open-photos--" + album.id, album.id, ">");
 
-        // open photos button
-        var button = document.createElement("button");
-        button.className = "open-photos";
-        button.id = album.id;
-        button.innerHTML = ">";
+        // add created stuff to li element
+        elem.appendChild(OCButton);
+        elem.appendChild(innerContainer);
+        console.log("fdsafas");
 
-        // ul for photos
-        var ul = document.createElement("ul");
-        ul.className = "album-" + album.id + "__photos photo-list";
+        return elem;
+      });
+    }
+
+    /**
+     *Creates dom items li for every object
+     * @param {array} photos
+     * @returns {array}
+     */
+
+    /**
+      * <a href="image.jpg" data-fancybox data-caption="Caption for single image">
+    <img src="thumbnail.jpg" alt="" />
+    </a>
+      */
+
+  }, {
+    key: "_transformPhotosApiToDom",
+    value: function _transformPhotosApiToDom(photos) {
+      return photos.map(function (photo) {
+        // create li element for each item
+        var elem = document.createElement("li");
+        elem.className = "photo-list__item";
+        // create link
+        var a = document.createElement("a");
+        a.href = photo.thumbnailUrl;
+        a.dataset.fancybox = "gallary";
+        a.dataset.caption = photo.title;
+        a.className = "fancybox";
+        // create img
+        var img = document.createElement("img");
+        img.src = photo.thumbnailUrl;
+        img.title = photo.title;
 
         //
-        li.innerHTML = album.title;
-        li.className = "album-list__item album-" + album.id;
-        li.appendChild(button);
-        li.appendChild(ul);
-        albumList.appendChild(li);
+        a.appendChild(img);
+        elem.appendChild(a);
+
+        return elem;
       });
     }
   }, {
-    key: "unrenderUserAlbums",
-    value: function unrenderUserAlbums(userId) {
-      var openBtn = document.getElementById("" + userId);
-      openBtn.classList.remove("opened");
-      var albumList = document.querySelector(".user-" + userId + "__albums");
-      albumList.innerHTML = "";
+    key: "createMainList",
+    value: function createMainList() {
+      var list = document.createElement("ul");
+      list.className = "user-list";
+
+      var main = document.querySelector("main");
+      main.appendChild(list);
     }
+
+    //RENDER/ UNRENDER
+    /**
+     * renders list of data on the screen(takes what render/ where it render)
+     * @param {array} data
+     * @param {string} selector
+     * @param {string} entity like users, albums, photos
+     * @returns {undefined}
+     */
+
   }, {
-    key: "renderAlbumPhotos",
-    value: function renderAlbumPhotos(photos) {
-      var openBtn = document.getElementById("" + photos[0].albumId);
-      openBtn.classList.add("photos-opened");
+    key: "render",
+    value: function render(data, selector, entity) {
+      var container = this._getListContainer(selector);
 
-      var photoList = document.querySelector(".album-" + photos[0].albumId + "__photos");
+      //render list by default
+      var renderList = null;
+      // choose what we render
+      switch (entity) {
+        case "users":
+          renderList = this._transformUsersApiToDom(data);
+          break;
+        case "albums":
+          //here we should set btn in open state
+          var albumsBtn = document.querySelector(".open-albums--" + data[0].userId);
+          albumsBtn.classList.add("albums--open");
 
-      photos.forEach(function (photo) {
-        var li = document.createElement("li");
-        var img = document.createElement("img");
+          renderList = this._transformAlbumsApiToDom(data);
+          break;
+        case "photos":
+          //here we should set btn in open state
+          var photosBtn = document.querySelector(".open-photos--" + data[0].albumId);
+          photosBtn.classList.add("photos--open");
 
-        img.src = photo.thumbnailUrl;
-        li.appendChild(img);
-        photoList.appendChild(li);
+          renderList = this._transformPhotosApiToDom(data);
+          break;
+      }
+
+      renderList.forEach(function (item) {
+        container.appendChild(item);
       });
     }
+
+    /**
+     * remove data when list will be closed
+     *
+     * @param {number} id
+     * @param {string} selector
+     * @param {string} entity
+     * @returns {undefined}
+     */
+
   }, {
-    key: "unrenderAlbumPhotos",
-    value: function unrenderAlbumPhotos(albumId) {
-      var openBtn = document.getElementById("" + albumId);
-      openBtn.classList.remove("photos-opened");
-      var photoList = document.querySelector(".album-" + albumId + "__photos");
-      photoList.innerHTML = "";
+    key: "unrender",
+    value: function unrender(id, selector, entity) {
+      switch (entity) {
+        case "albums":
+          var albumsBtn = document.querySelector(".open-albums--" + id);
+          albumsBtn.classList.remove("albums--open");
+          break;
+        case "photos":
+          var photosBtn = document.querySelector(".open-photos--" + id);
+          photosBtn.classList.remove("photos--open");
+          break;
+      }
+
+      var list = document.querySelector(selector);
+      list.innerHTML = "";
     }
   }]);
 
@@ -297,7 +413,7 @@ var Controller = function () {
     key: "catalogRoute",
     value: function () {
       var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7() {
-        var _this2 = this;
+        var _this4 = this;
 
         var model, view, users, openBtn;
         return regeneratorRuntime.wrap(function _callee7$(_context7) {
@@ -306,14 +422,20 @@ var Controller = function () {
               case 0:
                 model = new Model();
                 view = new View();
-                _context7.prev = 2;
-                _context7.next = 5;
+
+                view.clearMain();
+
+                _context7.prev = 3;
+
+                view.createMainList();
+                /**load all users and display */
+                _context7.next = 7;
                 return model.getUsers();
 
-              case 5:
+              case 7:
                 users = _context7.sent;
 
-                view.renderUsers(users);
+                view.render(users, ".user-list", "users");
 
                 /**handle "open curren user albums" button, and load albums*/
                 openBtn = document.querySelectorAll(".open-albums");
@@ -341,13 +463,14 @@ var Controller = function () {
                             case 4:
                               albums = _context6.sent;
 
-                              view.renderUserAlbums(albums);
+                              view.render(albums, ".user-" + albums[0].userId + "__albums", "albums");
+
                               flag = true;
                               _context6.next = 11;
                               break;
 
                             case 9:
-                              view.unrenderUserAlbums(currentUserId);
+                              view.unrender(currentUserId, ".user-" + currentUserId + "__albums", "albums");
                               flag = false;
 
                             case 11:
@@ -377,24 +500,33 @@ var Controller = function () {
                                           case 4:
                                             photos = _context5.sent;
 
-                                            view.renderAlbumPhotos(photos);
+                                            view.render(photos, ".album-" + photos[0].albumId + "__photos", "photos");
                                             flag = true;
                                             _context5.next = 11;
                                             break;
 
                                           case 9:
-                                            view.unrenderAlbumPhotos(currentAlbumId);
+                                            view.unrender(currentAlbumId, ".album-" + currentAlbumId + "__photos", "photos");
                                             flag = false;
 
                                           case 11:
+
+                                            $().fancybox({
+                                              selector: ".fancybox",
+                                              beforeClose: function beforeClose() {
+                                                location.reload();
+                                              }
+                                            });
+
+                                          case 12:
                                           case "end":
                                             return _context5.stop();
                                         }
                                       }
-                                    }, _callee5, _this2);
+                                    }, _callee5, _this4);
                                   }));
 
-                                  return function (_x5) {
+                                  return function (_x7) {
                                     return _ref7.apply(this, arguments);
                                   };
                                 }());
@@ -405,29 +537,29 @@ var Controller = function () {
                               return _context6.stop();
                           }
                         }
-                      }, _callee6, _this2);
+                      }, _callee6, _this4);
                     }));
 
-                    return function (_x4) {
+                    return function (_x6) {
                       return _ref6.apply(this, arguments);
                     };
                   }());
                 });
-                _context7.next = 14;
+                _context7.next = 16;
                 break;
 
-              case 11:
-                _context7.prev = 11;
-                _context7.t0 = _context7["catch"](2);
+              case 13:
+                _context7.prev = 13;
+                _context7.t0 = _context7["catch"](3);
 
                 console.log(_context7.t0);
 
-              case 14:
+              case 16:
               case "end":
                 return _context7.stop();
             }
           }
-        }, _callee7, this, [[2, 11]]);
+        }, _callee7, this, [[3, 13]]);
       }));
 
       function catalogRoute() {
@@ -440,13 +572,18 @@ var Controller = function () {
     key: "favoriteRoute",
     value: function () {
       var _ref8 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8() {
+        var model, view;
         return regeneratorRuntime.wrap(function _callee8$(_context8) {
           while (1) {
             switch (_context8.prev = _context8.next) {
               case 0:
-                console.log("this is favorite route");
+                model = new Model();
+                view = new View();
 
-              case 1:
+
+                view.clearMain();
+
+              case 3:
               case "end":
                 return _context8.stop();
             }

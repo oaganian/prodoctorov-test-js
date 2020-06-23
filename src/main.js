@@ -39,99 +39,223 @@ class Model {
  *@DESC View
  */
 class View {
+  clearMain() {
+    const main = document.querySelector("main");
+    main.innerHTML = "";
+  }
   //HELPER FUNCTIONS
 
+  /**
+   *get list container for each entity
+   * @param {string} containerSelector
+   * @returns {object} ul
+   */
   _getListContainer(containerSelector) {
     const container = document.querySelector(containerSelector);
     return container;
   }
-  _createElements() {}
 
-  //RENDER FUNCTIONS
+  /**
+   *Creates dom item
+   * @param {string} className
+   * @param {string} id
+   * @param {string} innerHTML
+   * @returns {object} domItem
+   */
+  _createDomItem(name, className, id = "", innerHTML = "") {
+    const domItem = document.createElement(name);
+    domItem.className = className;
+    domItem.id = id;
+    domItem.innerHTML = innerHTML;
 
-  renderUsers(users) {
-    const userList = document.querySelector(".user-list");
-    /**create li for all users */
-    users.forEach((user) => {
-      let li = document.createElement("li");
-      /**button open albums */
-      let button = document.createElement("button");
-      button.className = `open-albums`;
-      button.id = user.id;
-      button.innerHTML = ">";
+    return domItem;
+  }
 
-      /**ul for albums */
-      const ul = document.createElement("ul");
-      ul.className = `user-${user.id}__albums album-list`;
+  /*------------------Вместо одной "универсальной" функции TRANSFORM_DATA, с большим количеством параметров, 
+функции было принято решение сделать 3, которые легко использовать ------------- */
 
-      li.innerHTML = user.name;
+  /**
+   *Creates dom items li for every object
+   * @param {array} users
+   * @returns {array}
+   */
+  _transformUsersApiToDom(users) {
+    return users.map((user) => {
+      // create li element for each item
+      const elem = this._createDomItem(
+        "li",
+        `user-list__item user-${user.id}`,
+        "",
+        user.name
+      );
 
-      li.className = `user-list__item user-${user.id}`;
-      li.appendChild(button);
-      li.appendChild(ul);
-      userList.appendChild(li);
+      // create ul inner container for each item
+      const innerContainer = this._createDomItem(
+        "ul",
+        `user-${user.id}__albums album-list`
+      );
+
+      //create button open/close for each item
+      const OCButton = this._createDomItem(
+        "button",
+        `open-albums open-albums--${user.id}`,
+        user.id,
+        ">"
+      );
+
+      // add created stuff to li element
+      elem.appendChild(OCButton);
+      elem.appendChild(innerContainer);
+
+      return elem;
     });
   }
-  renderUserAlbums(albums) {
-    const openBtn = document.getElementById(`${albums[0].userId}`);
 
-    openBtn.classList.add("opened");
+  /**
+   *Creates dom items li for every object
+   * @param {array} albums
+   * @returns {array}
+   */
+  _transformAlbumsApiToDom(albums) {
+    return albums.map((album) => {
+      // create li element for each item
+      const elem = this._createDomItem(
+        "li",
+        `album-list__item album-${album.id}`,
+        "",
+        album.title
+      );
 
-    const albumList = document.querySelector(
-      `.user-${albums[0].userId}__albums`
-    );
+      // create ul inner container for each item
+      const innerContainer = this._createDomItem(
+        "ul",
+        `album-${album.id}__photos photo-list`
+      );
 
-    //
-    albums.forEach((album) => {
-      const li = document.createElement("li");
+      //create button open/close for each item
+      const OCButton = this._createDomItem(
+        "button",
+        `open-photos open-photos--${album.id}`,
+        album.id,
+        ">"
+      );
 
-      // open photos button
-      let button = document.createElement("button");
-      button.className = `open-photos`;
-      button.id = album.id;
-      button.innerHTML = ">";
+      // add created stuff to li element
+      elem.appendChild(OCButton);
+      elem.appendChild(innerContainer);
+      console.log("fdsafas");
 
-      // ul for photos
-      const ul = document.createElement("ul");
-      ul.className = `album-${album.id}__photos photo-list`;
+      return elem;
+    });
+  }
+
+  /**
+   *Creates dom items li for every object
+   * @param {array} photos
+   * @returns {array}
+   */
+
+  /**
+    * <a href="image.jpg" data-fancybox data-caption="Caption for single image">
+	<img src="thumbnail.jpg" alt="" />
+</a>
+    */
+  _transformPhotosApiToDom(photos) {
+    return photos.map((photo) => {
+      // create li element for each item
+      const elem = document.createElement("li");
+      elem.className = "photo-list__item";
+      // create link
+      const a = document.createElement("a");
+      a.href = photo.thumbnailUrl;
+      a.dataset.fancybox = "gallary";
+      a.dataset.caption = photo.title;
+      a.className = "fancybox";
+      // create img
+      const img = document.createElement("img");
+      img.src = photo.thumbnailUrl;
+      img.title = photo.title;
 
       //
-      li.innerHTML = album.title;
-      li.className = `album-list__item album-${album.id}`;
-      li.appendChild(button);
-      li.appendChild(ul);
-      albumList.appendChild(li);
+      a.appendChild(img);
+      elem.appendChild(a);
+
+      return elem;
     });
   }
-  unrenderUserAlbums(userId) {
-    const openBtn = document.getElementById(`${userId}`);
-    openBtn.classList.remove("opened");
-    const albumList = document.querySelector(`.user-${userId}__albums`);
-    albumList.innerHTML = "";
+  createMainList() {
+    const list = document.createElement("ul");
+    list.className = "user-list";
+
+    const main = document.querySelector("main");
+    main.appendChild(list);
   }
 
-  renderAlbumPhotos(photos) {
-    const openBtn = document.getElementById(`${photos[0].albumId}`);
-    openBtn.classList.add("photos-opened");
+  //RENDER/ UNRENDER
+  /**
+   * renders list of data on the screen(takes what render/ where it render)
+   * @param {array} data
+   * @param {string} selector
+   * @param {string} entity like users, albums, photos
+   * @returns {undefined}
+   */
+  render(data, selector, entity) {
+    const container = this._getListContainer(selector);
 
-    const photoList = document.querySelector(
-      `.album-${photos[0].albumId}__photos`
-    );
+    //render list by default
+    let renderList = null;
+    // choose what we render
+    switch (entity) {
+      case "users":
+        renderList = this._transformUsersApiToDom(data);
+        break;
+      case "albums":
+        //here we should set btn in open state
+        const albumsBtn = document.querySelector(
+          `.open-albums--${data[0].userId}`
+        );
+        albumsBtn.classList.add("albums--open");
 
-    photos.forEach((photo) => {
-      const li = document.createElement("li");
-      const img = document.createElement("img");
+        renderList = this._transformAlbumsApiToDom(data);
+        break;
+      case "photos":
+        //here we should set btn in open state
+        const photosBtn = document.querySelector(
+          `.open-photos--${data[0].albumId}`
+        );
+        photosBtn.classList.add("photos--open");
 
-      img.src = photo.thumbnailUrl;
-      li.appendChild(img);
-      photoList.appendChild(li);
+        renderList = this._transformPhotosApiToDom(data);
+        break;
+    }
+
+    renderList.forEach((item) => {
+      container.appendChild(item);
     });
   }
-  unrenderAlbumPhotos(albumId) {
-    const openBtn = document.getElementById(`${albumId}`);
-    openBtn.classList.remove("photos-opened");
-    const photoList = document.querySelector(`.album-${albumId}__photos`);
-    photoList.innerHTML = "";
+
+  /**
+   * remove data when list will be closed
+   *
+   * @param {number} id
+   * @param {string} selector
+   * @param {string} entity
+   * @returns {undefined}
+   */
+  unrender(id, selector, entity) {
+    switch (entity) {
+      case "albums":
+        const albumsBtn = document.querySelector(`.open-albums--${id}`);
+        albumsBtn.classList.remove("albums--open");
+        break;
+      case "photos":
+        const photosBtn = document.querySelector(`.open-photos--${id}`);
+        photosBtn.classList.remove("photos--open");
+        break;
+    }
+
+    const list = document.querySelector(selector);
+    list.innerHTML = "";
   }
 }
 
@@ -141,10 +265,13 @@ class Controller {
   static async catalogRoute() {
     const model = new Model();
     const view = new View();
+    view.clearMain();
+
     try {
+      view.createMainList();
       /**load all users and display */
       const users = await model.getUsers();
-      view.renderUsers(users);
+      view.render(users, ".user-list", "users");
 
       /**handle "open curren user albums" button, and load albums*/
       let openBtn = document.querySelectorAll(".open-albums");
@@ -156,10 +283,15 @@ class Controller {
           if (!flag) {
             /**load user albums with this id and render them*/
             const albums = await model.getUserAlbums(currentUserId);
-            view.renderUserAlbums(albums);
+            view.render(albums, `.user-${albums[0].userId}__albums`, "albums");
+
             flag = true;
           } else {
-            view.unrenderUserAlbums(currentUserId);
+            view.unrender(
+              currentUserId,
+              `.user-${currentUserId}__albums`,
+              "albums"
+            );
             flag = false;
           }
 
@@ -172,12 +304,27 @@ class Controller {
 
               if (!flag) {
                 const photos = await model.getUserPhotos(currentAlbumId);
-                view.renderAlbumPhotos(photos);
+                view.render(
+                  photos,
+                  `.album-${photos[0].albumId}__photos`,
+                  "photos"
+                );
                 flag = true;
               } else {
-                view.unrenderAlbumPhotos(currentAlbumId);
+                view.unrender(
+                  currentAlbumId,
+                  `.album-${currentAlbumId}__photos`,
+                  "photos"
+                );
                 flag = false;
               }
+
+              $().fancybox({
+                selector: ".fancybox",
+                beforeClose: function () {
+                  location.reload();
+                },
+              });
             });
           });
         });
@@ -187,7 +334,10 @@ class Controller {
     }
   }
   static async favoriteRoute() {
-    console.log("this is favorite route");
+    const model = new Model();
+    const view = new View();
+
+    view.clearMain();
   }
 }
 
