@@ -10,6 +10,12 @@
   padding: 0;
 }
 
+button,
+button:active,
+button:focus {
+  outline: none;
+}
+
 body {
   min-height: 100vh;
   scroll-behavior: smooth;
@@ -114,4 +120,28 @@ img {
 .albums--open,
 .photos--open {
   transform: rotate(90deg);
+}
+.photo-list__item {
+  display: flex;
+}
+.star {
+  margin-right: 20px;
+  height: 40px;
+  width: 40px;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  display: block;
+}
+.star__icon {
+  font-size: 23px;
+  color: #3d3d3d;
+}
+
+.star--grey {
+  background: grey;
+}
+
+.star--yellow {
+  background: yellow;
 }
