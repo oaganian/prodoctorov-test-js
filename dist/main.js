@@ -165,6 +165,34 @@ var Model = function () {
 
       return getUserPhotos;
     }()
+  }, {
+    key: "getSpecificPhoto",
+    value: function () {
+      var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(photoId) {
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                _context5.next = 2;
+                return this._fetchResourse("/photos?id=" + photoId);
+
+              case 2:
+                return _context5.abrupt("return", _context5.sent);
+
+              case 3:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5, this);
+      }));
+
+      function getSpecificPhoto(_x4) {
+        return _ref5.apply(this, arguments);
+      }
+
+      return getSpecificPhoto;
+    }()
   }]);
 
   return Model;
@@ -184,6 +212,17 @@ var View = function () {
     value: function clearDOM() {
       var main = document.querySelector("main");
       main.innerHTML = "";
+    }
+  }, {
+    key: "setStarColor",
+    value: function setStarColor(starId, flag) {
+      var star = this.findNode(".star-" + starId);
+      var starIcon = star.firstElementChild;
+      if (flag) {
+        starIcon.classList.add("star__icon--yellow");
+      } else {
+        starIcon.classList.remove("star__icon--yellow");
+      }
     }
   }, {
     key: "setNavLinks",
@@ -339,25 +378,38 @@ var View = function () {
         var photos = [].concat(_toConsumableArray(data));
 
         return photos.map(function (photo) {
-          console.log(photo);
           //li
           var li = _this2.createNode("li", "photo-list__item");
+
+          // a
+          var a = _this2.createNode("a", "photo-list__link", null, null, photo.url, null, photo.title);
 
           // img
           var img = _this2.createNode("img", null, null, null, null, photo.thumbnailUrl, photo.title);
 
           // button
           var btn = _this2.createNode("button", "star star-" + photo.id + " star__icon", null, photo.id);
-          // i <i class="fa fa-star" aria-hidden="true"></i>
-          var i = _this2.createNode("i", "fa fa-star");
 
+          // i <i class="fa fa-star" aria-hidden="true"></i>
+          var iClassName = "fa fa-star";
+
+          if (localStorage.getItem(photo.id) !== null) {
+            iClassName = "fa fa-star star__icon--yellow ";
+          }
+
+          var i = _this2.createNode("i", iClassName);
+
+          a.appendChild(img);
           btn.appendChild(i);
           li.appendChild(btn);
-          li.appendChild(img);
+          li.appendChild(a);
 
           return li;
         });
       }
+      // if (entity === "favorites") {
+      //   console.log("favorites!!!");
+      // }
     }
   }]);
 
@@ -373,15 +425,71 @@ var Controller = function () {
   }
 
   _createClass(Controller, null, [{
+    key: "_localStorage",
+    value: function _localStorage() {
+      var _this3 = this;
+
+      var view = new View();
+      var model = new Model();
+      var stars = view.findNodes(".star");
+
+      stars.forEach(function (item) {
+        item.addEventListener("click", function () {
+          var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(e) {
+            var photo, removingItem;
+            return regeneratorRuntime.wrap(function _callee6$(_context6) {
+              while (1) {
+                switch (_context6.prev = _context6.next) {
+                  case 0:
+                    _context6.next = 2;
+                    return model.getSpecificPhoto(item.id);
+
+                  case 2:
+                    photo = _context6.sent;
+
+                    photo = photo[0];
+
+                    //check key in local storage
+
+                    if (localStorage.getItem(photo.id.toString()) == null) {
+                      // add this key in storage
+                      localStorage.setItem(photo.id.toString(), JSON.stringify(photo));
+
+                      // set yellow
+                      view.setStarColor(photo.id, true);
+                    } else {
+                      localStorage.removeItem(photo.id.toString());
+                      removingItem = e.target.parentNode.parentNode;
+                      // remove yellow
+
+                      view.setStarColor(photo.id, false);
+                      removingItem.remove();
+                    }
+
+                  case 5:
+                  case "end":
+                    return _context6.stop();
+                }
+              }
+            }, _callee6, _this3);
+          }));
+
+          return function (_x5) {
+            return _ref6.apply(this, arguments);
+          };
+        }());
+      });
+    }
+  }, {
     key: "catalogRoute",
     value: function () {
-      var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7() {
-        var _this3 = this;
+      var _ref7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9() {
+        var _this4 = this;
 
         var model, view, userListContainer, userList, users, usersDOMList, usersDOMListContainer, openAlbumsBtns;
-        return regeneratorRuntime.wrap(function _callee7$(_context7) {
+        return regeneratorRuntime.wrap(function _callee9$(_context9) {
           while (1) {
-            switch (_context7.prev = _context7.next) {
+            switch (_context9.prev = _context9.next) {
               case 0:
                 model = new Model();
                 view = new View();
@@ -399,11 +507,11 @@ var Controller = function () {
                 view.renderDOM(userListContainer, userList);
 
                 // fetch users data
-                _context7.next = 9;
+                _context9.next = 9;
                 return model.getUsers();
 
               case 9:
-                users = _context7.sent;
+                users = _context9.sent;
 
                 // transfrom users data to dom elements
                 usersDOMList = view.transformApiToDOM(users, "users");
@@ -420,21 +528,21 @@ var Controller = function () {
                 openAlbumsBtns.forEach(function (item) {
                   var flag = false;
                   item.addEventListener("click", function () {
-                    var _ref6 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(e) {
+                    var _ref8 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(e) {
                       var currentUserId, albums, albumsDOMList, albumsDOMListContainer, openPhotosBtns;
-                      return regeneratorRuntime.wrap(function _callee6$(_context6) {
+                      return regeneratorRuntime.wrap(function _callee8$(_context8) {
                         while (1) {
-                          switch (_context6.prev = _context6.next) {
+                          switch (_context8.prev = _context8.next) {
                             case 0:
                               currentUserId = Number(e.target.id);
 
                               // fetch albums data
 
-                              _context6.next = 3;
+                              _context8.next = 3;
                               return model.getUserAlbums(currentUserId);
 
                             case 3:
-                              albums = _context6.sent;
+                              albums = _context8.sent;
 
                               // transfrom albums data to dom elements
                               albumsDOMList = view.transformApiToDOM(albums, "albums");
@@ -460,21 +568,21 @@ var Controller = function () {
                               openPhotosBtns.forEach(function (item) {
                                 var flag = false;
                                 item.addEventListener("click", function () {
-                                  var _ref7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5(e) {
+                                  var _ref9 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(e) {
                                     var currentAlbumId, photos, photosDOMList, photosDOMListContainer;
-                                    return regeneratorRuntime.wrap(function _callee5$(_context5) {
+                                    return regeneratorRuntime.wrap(function _callee7$(_context7) {
                                       while (1) {
-                                        switch (_context5.prev = _context5.next) {
+                                        switch (_context7.prev = _context7.next) {
                                           case 0:
                                             currentAlbumId = Number(e.target.id);
 
                                             //fetch photos data
 
-                                            _context5.next = 3;
+                                            _context7.next = 3;
                                             return model.getUserPhotos(currentAlbumId);
 
                                           case 3:
-                                            photos = _context5.sent;
+                                            photos = _context7.sent;
 
                                             //transform photos data to dom elements
                                             photosDOMList = view.transformApiToDOM(photos, "photos");
@@ -494,44 +602,52 @@ var Controller = function () {
                                               flag = false;
                                             }
 
-                                          case 7:
+                                            $(".photo-list__link").magnificPopup({ type: "image" });
+
+                                            /**
+                                             *
+                                             * LOCAl sTORAGE LOGIC
+                                             */
+                                            _this4._localStorage();
+
+                                          case 9:
                                           case "end":
-                                            return _context5.stop();
+                                            return _context7.stop();
                                         }
                                       }
-                                    }, _callee5, _this3);
+                                    }, _callee7, _this4);
                                   }));
 
-                                  return function (_x5) {
-                                    return _ref7.apply(this, arguments);
+                                  return function (_x7) {
+                                    return _ref9.apply(this, arguments);
                                   };
                                 }());
                               });
 
                             case 9:
                             case "end":
-                              return _context6.stop();
+                              return _context8.stop();
                           }
                         }
-                      }, _callee6, _this3);
+                      }, _callee8, _this4);
                     }));
 
-                    return function (_x4) {
-                      return _ref6.apply(this, arguments);
+                    return function (_x6) {
+                      return _ref8.apply(this, arguments);
                     };
                   }());
                 });
 
               case 15:
               case "end":
-                return _context7.stop();
+                return _context9.stop();
             }
           }
-        }, _callee7, this);
+        }, _callee9, this);
       }));
 
       function catalogRoute() {
-        return _ref5.apply(this, arguments);
+        return _ref7.apply(this, arguments);
       }
 
       return catalogRoute;
@@ -539,11 +655,11 @@ var Controller = function () {
   }, {
     key: "favoriteRoute",
     value: function () {
-      var _ref8 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8() {
-        var model, view;
-        return regeneratorRuntime.wrap(function _callee8$(_context8) {
+      var _ref10 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10() {
+        var model, view, favoriteList, favoriteContainer, favorites, keys, i, favoritesDOMList, favoritesDOMListContainer;
+        return regeneratorRuntime.wrap(function _callee10$(_context10) {
           while (1) {
-            switch (_context8.prev = _context8.next) {
+            switch (_context10.prev = _context10.next) {
               case 0:
                 model = new Model();
                 view = new View();
@@ -552,16 +668,47 @@ var Controller = function () {
                 view.setNavLinks();
                 view.clearDOM();
 
-              case 4:
+                // create favorite-list
+
+                favoriteList = view.createNode("ul", "favorite-list");
+                favoriteContainer = view.findNode("main");
+
+                view.renderDOM(favoriteContainer, favoriteList);
+
+                //get all items from local storage
+                favorites = [], keys = Object.keys(localStorage), i = keys.length;
+
+
+                while (i--) {
+                  favorites.push(JSON.parse(localStorage.getItem(keys[i])));
+                }
+
+                favoritesDOMList = view.transformApiToDOM(favorites, "photos");
+                favoritesDOMListContainer = view.findNode(".favorite-list");
+
+
+                favoritesDOMList.forEach(function (item) {
+                  view.renderDOM(favoritesDOMListContainer, item);
+                });
+
+                $(".photo-list__link").magnificPopup({ type: "image" });
+
+                /**
+                 *
+                 * LOCAl sTORAGE LOGIC
+                 */
+                this._localStorage();
+
+              case 14:
               case "end":
-                return _context8.stop();
+                return _context10.stop();
             }
           }
-        }, _callee8, this);
+        }, _callee10, this);
       }));
 
       function favoriteRoute() {
-        return _ref8.apply(this, arguments);
+        return _ref10.apply(this, arguments);
       }
 
       return favoriteRoute;

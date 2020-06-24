@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "babel src -d dist -w"
+    "dev": "babel src -d dist -w",
+    "build": "babel src -d dist"
   },
   "keywords": [],
   "author": "",
@@ -15,7 +16,5 @@
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0"
   },
-  "dependencies": {
-    "handlebars": "^4.7.6"
-  }
+  "dependencies": {}
 }

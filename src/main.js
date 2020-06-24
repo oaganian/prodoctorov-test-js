@@ -34,6 +34,10 @@ class Model {
   async getUserPhotos(albumId) {
     return await this._fetchResourse(`/photos?albumId=${albumId}`);
   }
+
+  async getSpecificPhoto(photoId) {
+    return await this._fetchResourse(`/photos?id=${photoId}`);
+  }
 }
 /**
  *@DESC View
@@ -44,6 +48,15 @@ class View {
     main.innerHTML = "";
   }
 
+  setStarColor(starId, flag) {
+    const star = this.findNode(`.star-${starId}`);
+    const starIcon = star.firstElementChild;
+    if (flag) {
+      starIcon.classList.add("star__icon--yellow");
+    } else {
+      starIcon.classList.remove("star__icon--yellow");
+    }
+  }
   setNavLinks() {
     const catalogLink = document.querySelector(".menu__link--catalog");
     const favoriteLink = document.querySelector(".menu__link--favorite");
@@ -197,9 +210,19 @@ class View {
       const photos = [...data];
 
       return photos.map((photo) => {
-        console.log(photo);
         //li
         const li = this.createNode("li", "photo-list__item");
+
+        // a
+        const a = this.createNode(
+          "a",
+          "photo-list__link",
+          null,
+          null,
+          photo.url,
+          null,
+          photo.title
+        );
 
         // img
         const img = this.createNode(
@@ -219,21 +242,60 @@ class View {
           null,
           photo.id
         );
-        // i <i class="fa fa-star" aria-hidden="true"></i>
-        const i = this.createNode("i", "fa fa-star");
 
+        // i <i class="fa fa-star" aria-hidden="true"></i>
+        let iClassName = "fa fa-star";
+
+        if (localStorage.getItem(photo.id) !== null) {
+          iClassName = "fa fa-star star__icon--yellow ";
+        }
+
+        const i = this.createNode("i", iClassName);
+
+        a.appendChild(img);
         btn.appendChild(i);
         li.appendChild(btn);
-        li.appendChild(img);
+        li.appendChild(a);
 
         return li;
       });
     }
+    // if (entity === "favorites") {
+    //   console.log("favorites!!!");
+    // }
   }
 }
 
 /**@DESC CONTROLLER*/
 class Controller {
+  static _localStorage() {
+    const view = new View();
+    const model = new Model();
+    const stars = view.findNodes(".star");
+
+    stars.forEach((item) => {
+      item.addEventListener("click", async (e) => {
+        let photo = await model.getSpecificPhoto(item.id);
+        photo = photo[0];
+
+        //check key in local storage
+
+        if (localStorage.getItem(photo.id.toString()) == null) {
+          // add this key in storage
+          localStorage.setItem(photo.id.toString(), JSON.stringify(photo));
+
+          // set yellow
+          view.setStarColor(photo.id, true);
+        } else {
+          localStorage.removeItem(photo.id.toString());
+          const removingItem = e.target.parentNode.parentNode;
+          // remove yellow
+          view.setStarColor(photo.id, false);
+          removingItem.remove();
+        }
+      });
+    });
+  }
   static async catalogRoute() {
     const model = new Model();
     const view = new View();
@@ -313,6 +375,14 @@ class Controller {
               });
               flag = false;
             }
+
+            $(".photo-list__link").magnificPopup({ type: "image" });
+
+            /**
+             *
+             * LOCAl sTORAGE LOGIC
+             */
+            this._localStorage();
           });
         });
       });
@@ -324,6 +394,36 @@ class Controller {
 
     view.setNavLinks();
     view.clearDOM();
+
+    // create favorite-list
+
+    const favoriteList = view.createNode("ul", "favorite-list");
+    const favoriteContainer = view.findNode("main");
+    view.renderDOM(favoriteContainer, favoriteList);
+
+    //get all items from local storage
+    let favorites = [],
+      keys = Object.keys(localStorage),
+      i = keys.length;
+
+    while (i--) {
+      favorites.push(JSON.parse(localStorage.getItem(keys[i])));
+    }
+
+    const favoritesDOMList = view.transformApiToDOM(favorites, "photos");
+    const favoritesDOMListContainer = view.findNode(".favorite-list");
+
+    favoritesDOMList.forEach((item) => {
+      view.renderDOM(favoritesDOMListContainer, item);
+    });
+
+    $(".photo-list__link").magnificPopup({ type: "image" });
+
+    /**
+     *
+     * LOCAl sTORAGE LOGIC
+     */
+    this._localStorage();
   }
 }
 

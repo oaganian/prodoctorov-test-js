@@ -138,10 +138,6 @@ img {
   color: #3d3d3d;
 }
 
-.star--grey {
-  background: grey;
-}
-
-.star--yellow {
-  background: yellow;
+.star__icon--yellow {
+  color: yellow;
 }
